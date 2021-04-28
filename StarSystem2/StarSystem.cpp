@@ -305,7 +305,7 @@ int main()
 		unsigned index;
 		float coef;
 		bool in_ok = true;
-		std::cout << "Please enter (+,-,*) (index) (value) to modify planet speed or ! to exit\n";
+		std::cout << "Please enter (+,-,*,&) (index) (value) to modify planet speed or ! to exit\n";
 		while (IsWindow(hWnd) && !_stop)
 		{
 			std::cout << ">";
@@ -313,7 +313,7 @@ int main()
 			std::cin >> str; switch (str.at(0))
 			{
 			default:
-				std::cout << "Please enter (+,-,*) (index) (value) to modify planet speed or ! to exit\n";
+				std::cout << "Please enter (+,-,*,&) (index) (value) to modify planet speed or ! to exit\n";
 				in_ok = false;
 				break;
 			case '+':
@@ -337,7 +337,7 @@ int main()
 			switch (str.at(0))
 			{
 			default:
-				std::cout << "Please enter (+,-,*) (index) (value) to modify planet speed or ! to exit\n";
+				std::cout << "Please enter (+,-,*,&) (index) (value) to modify planet speed or ! to exit\n";
 				break;
 			case '+':
 				ss.modifyPlanetSpeed(index, coef);
