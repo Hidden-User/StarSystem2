@@ -10,8 +10,8 @@ HWND hWnd;
 HINSTANCE hInstance;
 MSG msg;
 
-const wchar_t* windowName = L"Lab2";
-const wchar_t *windowClassName = L"Lab2";
+const wchar_t* windowName = L"StarSystem";
+const wchar_t *windowClassName = L"StarSystem";
 
 const char vertexShader[] = "cbuffer CB:register(b0){matrix proj;}struct POINT{float4 pos:SV_POSITION;float4 color:COLOR0;};POINT VS(float4 position:POSITION,float4 color:COLOR){POINT _out=(POINT)0;_out.pos=mul(position,proj);_out.color=color;return _out;}";
 const char pixelShader[] = "struct POINT{float4 pos:SV_POSITION;float4 color:COLOR0;};float4 PS(POINT input):SV_Target{return input.color;}";
@@ -204,10 +204,6 @@ void startDX() {
 
 	hr = device->CreateInputLayout(inElDesc, 2, lBlob->GetBufferPointer(), lBlob->GetBufferSize(), &layout);
 
-	if (FAILED(hr)) {
-		std::cout << "create input layout error";
-	}
-
 	context->IASetInputLayout(layout);
 
 	D3DCompile(pixelShader, sizeof(pixelShader), "pixelShader", NULL, NULL, "PS", "ps_4_1", NULL, NULL, &lBlob, &errBlob);
@@ -218,11 +214,7 @@ void startDX() {
 		errBlob = NULL;
 	}
 
-	hr = device->CreatePixelShader(lBlob->GetBufferPointer(), lBlob->GetBufferSize(), NULL, &ps);
-
-	if (hr != S_OK) {
-		MessageBoxA(hWnd, "ERR", "ERR", MB_OK);
-	}
+	device->CreatePixelShader(lBlob->GetBufferPointer(), lBlob->GetBufferSize(), NULL, &ps);
 
 	D3D11_RASTERIZER_DESC rasterDesc;
 	rasterDesc.AntialiasedLineEnable = false;
@@ -230,7 +222,7 @@ void startDX() {
 	rasterDesc.DepthBias = 0;
 	rasterDesc.DepthBiasClamp = 0.0f;
 	rasterDesc.DepthClipEnable = false;
-	rasterDesc.FillMode = D3D11_FILL_SOLID;//!!!!
+	rasterDesc.FillMode = D3D11_FILL_SOLID;
 	rasterDesc.FrontCounterClockwise = true;
 	rasterDesc.MultisampleEnable = false;
 	rasterDesc.ScissorEnable = false;
@@ -259,6 +251,9 @@ void startDX() {
 void stopDX() {
 	if (cBuff != NULL) {
 		cBuff->Release();
+	}
+	if (rasterState != NULL) {
+		rasterState->Release();
 	}
 	if (ps != NULL) {
 		ps->Release();
@@ -310,7 +305,9 @@ int main()
 		{
 			std::cout << ">";
 
-			std::cin >> str; switch (str.at(0))
+			std::cin >> str; 
+			
+			switch (str.at(0))
 			{
 			default:
 				std::cout << "Please enter (+,-,*,&) (index) (value) to modify planet speed or ! to exit\n";
@@ -323,14 +320,17 @@ int main()
 			case '!':
 				break;
 			}
+			
 			if (str.at(0) == '!') {
 				_stop = true;
 				break;
 			}
+			
 			if (!in_ok) {
 				in_ok = true;
 				continue;
 			}
+			
 			std::cin >> index >> coef;
 
 			m_ss.lock();
@@ -363,7 +363,7 @@ int main()
 	thread.detach();
 
 	m_ss.lock();
-	ss.initD3D(device, context, vs, ps);
+	ss.initD3D(device, context);
 	ss.init(5u);
 	m_ss.unlock();
 	while (true)
@@ -437,7 +437,7 @@ void StarSystem::init(unsigned countOfPlanet)
 	for (unsigned t = 0; t < this->countOfPlanet; t++) {
 		this->planets[t] = new Planet();
 		(this->planets[t])->lock();
-		(this->planets[t])->initD3D(this->device, this->context, this->vs, this->ps);
+		(this->planets[t])->initD3D(this->device, this->context);
 		(this->planets[t])->init((t * 65.0f) + 100.0f, ((rand() % 2) + 1.0f) * 10.0f, { (1.0f / this->countOfPlanet) * t,(1.0f / this->countOfPlanet) * t ,(1.0f / this->countOfPlanet) * t , 1.0f });
 		(this->planets[t])->exist = true;
 		this->__planets[t] = new std::thread(func, std::ref(this->planets[t]));
@@ -463,8 +463,8 @@ void StarSystem::update()
 	context->UpdateSubresource(cBuff, 0, NULL, &lCB, 0, 0);
 	context->VSSetConstantBuffers(0, 1, &cBuff);
 
-	context->VSSetShader(this->vs, NULL, NULL);
-	context->PSSetShader(this->ps, NULL, NULL);
+	context->VSSetShader(vs, NULL, NULL);
+	context->PSSetShader(ps, NULL, NULL);
 
 	Circle::g_m0.unlock();
 
@@ -503,9 +503,7 @@ void StarSystem::update()
 		return;
 	}
 
-	if (swapChain->Present(1, 0) != S_OK) {
-		MessageBoxA(hWnd, "swapchain Err", "swapchain Err", MB_OK);
-	}
+	swapChain->Present(1, 0);
 
 	this->unlock();
 }

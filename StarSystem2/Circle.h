@@ -53,7 +53,7 @@ public:
 	Circle();
 	~Circle();
 
-	void initD3D(ID3D11Device* device, ID3D11DeviceContext* context, ID3D11VertexShader* vs, ID3D11PixelShader* ps);
+	void initD3D(ID3D11Device* device, ID3D11DeviceContext* context);
 	void circleInit(float dist, float size, F4 color);
 
 	virtual void update() = 0;
@@ -75,8 +75,6 @@ protected:
 
 	ID3D11DeviceContext* context;
 	ID3D11Device* device;
-	ID3D11VertexShader* vs;
-	ID3D11PixelShader* ps;
 
 private:
 

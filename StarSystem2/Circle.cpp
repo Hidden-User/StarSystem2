@@ -30,12 +30,10 @@ Circle::~Circle()
 	}
 }
 
-void Circle::initD3D(ID3D11Device * device, ID3D11DeviceContext * context, ID3D11VertexShader* vs, ID3D11PixelShader* ps)
+void Circle::initD3D(ID3D11Device * device, ID3D11DeviceContext * context)
 {
 	this->device = device;
 	this->context = context;
-	this->vs = vs;
-	this->ps = ps;
 }
 
 void Circle::circleInit(float dist, float size, F4 color)
@@ -130,8 +128,6 @@ void Circle::draw()
 	UINT offset = 0;
 	D3D11_MAPPED_SUBRESOURCE mpsr = { 0 };
 
-	
-
 	Circle::g_m0.lock();
 
 	(this->context)->Map(this->triangleBuff, 0, D3D11_MAP_WRITE_DISCARD, 0, &mpsr);
@@ -140,16 +136,12 @@ void Circle::draw()
 
 	(this->context)->Unmap(this->triangleBuff, 0);
 
-	//(this->context)->VSSetShader(this->vs, NULL, NULL);
-	//(this->context)->PSSetShader(this->ps, NULL, NULL);
-
 	(this->context)->IASetVertexBuffers(0, 1, &this->triangleBuff, &stride, &offset);
 	(this->context)->IASetIndexBuffer(this->indexBuff, DXGI_FORMAT_R32_UINT, 0);
 
 	(this->context)->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	//(this->context)->DrawIndexed(this->countOfTriangle * 3, 0, 0);
-	(this->context)->Draw(this->countOfTriangle * 3, 0);
+	(this->context)->DrawIndexed(this->countOfTriangle * 3, 0, 0);
 
 	this->drawS = true;
 
