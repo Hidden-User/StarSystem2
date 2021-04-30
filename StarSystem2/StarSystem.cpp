@@ -519,6 +519,7 @@ void StarSystem::modifyPlanetSpeed(unsigned index, float speed, unsigned type)
 {
 	this->lock();
 	if (index >= this->countOfPlanet) {
+		this->unlock();
 		return;
 	}
 	switch (type)
